@@ -9,7 +9,7 @@ import requests
 # https://codebeautify.org/jsonviewer
 
 def calc_age(uid):
-    CURRENT_YEAR = 2018
+    CURRENT_YEAR = 2019
     ACCESS_TOKEN = '17fd519317fd519317fd5193931795e7d2117fd17fd51934b9bef66fef03d01a94a9104'
     url = f"https://api.vk.com/method/users.get?v=5.71&access_token={ACCESS_TOKEN}&user_ids={uid}"
 
