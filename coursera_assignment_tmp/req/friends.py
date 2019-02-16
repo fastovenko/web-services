@@ -9,6 +9,7 @@ import requests
 # https://codebeautify.org/jsonviewer
 
 def calc_age(uid):
+    CURRENT_YEAR = 2018
     ACCESS_TOKEN = '17fd519317fd519317fd5193931795e7d2117fd17fd51934b9bef66fef03d01a94a9104'
     url = f"https://api.vk.com/method/users.get?v=5.71&access_token={ACCESS_TOKEN}&user_ids={uid}"
 
@@ -20,9 +21,6 @@ def calc_age(uid):
         "https": https_proxy,
     }
 
-    # Passing Parameters
-    # params = {'user': 'uid', 'token': 'ACCESS_TOKEN'}
-
     vk_answer = requests.get(url, proxies=proxy_dict).json()
     user_id = vk_answer["response"][0]["id"]
 
@@ -31,16 +29,24 @@ def calc_age(uid):
     vk_answer = requests.get(url_friends, proxies=proxy_dict).json()
     vk_data = vk_answer['response']['items']
 
-    return vk_data
+    friends_map = dict()
+
+    for record in vk_data:
+        if 'bdate' in record.keys():
+            record_date = record['bdate'].split('.')
+            if len(record_date) == 3:
+                bdate_year = int(record_date[2])
+                friend_age = CURRENT_YEAR - bdate_year
+
+                if friend_age not in friends_map:
+                    friends_map[friend_age] = 0
+
+                friends_map[friend_age] += 1
+    friends_list = sorted(friends_map.items(), key=lambda el: (-el[1], el[0]))
+
+    return friends_list
 
 
 if __name__ == '__main__':
     result = calc_age('reigning')
     print(result)
-
-    i = 1
-    for record in result:
-        if 'bdate' in record.keys():
-            print(f"{i} {record['id']} ----- {record['bdate']}")
-            i += 1
-
