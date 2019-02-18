@@ -30,7 +30,7 @@ files = {'file':
           open('/Users/alexander/Desktop/test.txt',
                'rb'))}
 
-r = requests.post(url, files=files)
+# r = requests.post(url, files=files)
 print(r.text)
 
 # Headers
