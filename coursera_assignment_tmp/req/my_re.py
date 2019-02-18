@@ -51,7 +51,7 @@ import re
 # re.search(match, text)
 
 # Найти все действительные числа, например: -100; 21.4; +5.3; -1.5; 0
-res = re.findall(r"[-+]?\d+(?:\.\d+)?", test_str)
+res = re.findall(r"[-+]?\d+(?:\.\d+)?", "231.78")
 
 # Проверить, что строка это серийный номер вида 00XXX-XXXXX-XXXXX-XXXXX, где X - шестнадцатиричная цифра
 if re.match(r"^00[\da-f]{3}(?:-[\da-f]{5}){3}$", serial_str, re.IGNORECASE):
