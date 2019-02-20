@@ -1,29 +1,69 @@
-from bs4 import BeautifulSoup
-import re
 import os
+import re
+
+from bs4 import BeautifulSoup
 
 
-# Вспомогательная функция, её наличие не обязательно и не будет проверяться
 def build_tree(start, end, path):
     link_re = re.compile(r"(?<=/wiki/)[\w()]+")  # Искать ссылки можно как угодно, не обязательно через re
     files = dict.fromkeys(os.listdir(path))  # Словарь вида {"filename1": None, "filename2": None, ...}
+    files_list = files.keys()
 
-    storage_path = os.path.join(path, list(files.keys())[0])
+    storage_path = os.path.join(path, start)
     # print(storage_path)
 
     with open(storage_path, "r", encoding='utf-8') as f:
         html = f.read()
-        print(type(html))
-        s = list()
 
-        s = re.findall(r"(?<=/wiki/)[\w()]+", html)
-        print(*s)
+    soup = BeautifulSoup(html, "lxml")
+    body = str(soup.find(id='bodyContent'))
+
+    article_list = set(re.findall(r"(?<=/wiki/)[\w()]+", body))
+    refs = [x for x in article_list if x in files_list]
+    # files[start] = refs
+    for ref in refs:
+        files[ref] = {0:[start]}
+        # print(f"{ref} --- {files[ref]}")
+
+    # Create new list = files_list - refs
+    list1 = [element for element in files_list if element not in refs]
+
+    files_list = refs
+
+    for file_1 in files_list:
+        storage_path = os.path.join(path, file_1)
+
+        with open(storage_path, "r", encoding='utf-8') as f:
+            html = f.read()
+
+        soup = BeautifulSoup(html, "lxml")
+        body = str(soup.find(id='bodyContent'))
+
+        article_list = set(re.findall(r"(?<=/wiki/)[\w()]+", body))
+        refs = [x for x in article_list if x in list1]
+
+        for xx in list1:
+            print(xx)
+
+
+        for xx in refs:
+            print(xx)
+
+        for ref in refs:
+            files[ref] = {1: [ref]}
+
+    for i in files.keys():
+        print(f"{files[i]}-------{i}")
+
+
+
+
+
 
     # TODO Проставить всем ключам в files правильного родителя в значение, начиная от start
     return files
 
 
-# Вспомогательная функция, её наличие не обязательно и не будет проверяться
 def build_bridge(start, end, path):
     files = build_tree(start, end, path)
     bridge = []
@@ -40,8 +80,8 @@ def parse(start, end, path):
     Чтобы получить максимальный балл, придется искать все страницы. Удачи!
     """
 
-    bridge = build_bridge( start, end, path)  # Искать список страниц можно как угодно, даже так:
-                                              # bridge = [end, start]
+    bridge = build_bridge(start, end, path)  # Искать список страниц можно как угодно, даже так:
+    # bridge = [end, start]
     # Когда есть список страниц, из них нужно вытащить данные и вернуть их
     out = {}
     for file in bridge:
