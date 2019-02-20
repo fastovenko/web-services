@@ -7,6 +7,18 @@ import os
 def build_tree(start, end, path):
     link_re = re.compile(r"(?<=/wiki/)[\w()]+")  # Искать ссылки можно как угодно, не обязательно через re
     files = dict.fromkeys(os.listdir(path))  # Словарь вида {"filename1": None, "filename2": None, ...}
+
+    storage_path = os.path.join(path, list(files.keys())[0])
+    # print(storage_path)
+
+    with open(storage_path, "r", encoding='utf-8') as f:
+        html = f.read()
+        print(type(html))
+        s = list()
+
+        s = re.findall(r"(?<=/wiki/)[\w()]+", html)
+        print(*s)
+
     # TODO Проставить всем ключам в files правильного родителя в значение, начиная от start
     return files
 
