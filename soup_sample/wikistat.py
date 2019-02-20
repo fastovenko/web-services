@@ -4,34 +4,22 @@ import re
 from bs4 import BeautifulSoup
 
 
-def build_tree(start, end, path):
-    link_re = re.compile(r"(?<=/wiki/)[\w()]+")  # Искать ссылки можно как угодно, не обязательно через re
-    files = dict.fromkeys(os.listdir(path))  # Словарь вида {"filename1": None, "filename2": None, ...}
-    files_list = files.keys()
+# pages_list: список страниц, из которых берем ссылки на другие страницы
+# undefined_list: список страниц, у которых нет ссылок
+# attr_list:
+#   path: путь к хранилищу страниц
+#   files: словарь, который изменяем алгоритмом
+#   page_stop: страница, при достижении которой алгоритм останавливается
+def recursion_tree(pages_list, undefined_list, attr_list):
+    print(f"Rec---{len(pages_list)}----{len(undefined_list)}---------------")
+    if len(pages_list) == 0 or len(undefined_list) == 0:
+        return
 
-    storage_path = os.path.join(path, start)
-    # print(storage_path)
+    path = attr_list[0]
+    refs = list()
 
-    with open(storage_path, "r", encoding='utf-8') as f:
-        html = f.read()
-
-    soup = BeautifulSoup(html, "lxml")
-    body = str(soup.find(id='bodyContent'))
-
-    article_list = set(re.findall(r"(?<=/wiki/)[\w()]+", body))
-    refs = [x for x in article_list if x in files_list]
-    # files[start] = refs
-    for ref in refs:
-        files[ref] = {0:[start]}
-        # print(f"{ref} --- {files[ref]}")
-
-    # Create new list = files_list - refs
-    list1 = [element for element in files_list if element not in refs]
-
-    files_list = refs
-
-    for file_1 in files_list:
-        storage_path = os.path.join(path, file_1)
+    for page in pages_list:
+        storage_path = os.path.join(path, page)
 
         with open(storage_path, "r", encoding='utf-8') as f:
             html = f.read()
@@ -40,27 +28,76 @@ def build_tree(start, end, path):
         body = str(soup.find(id='bodyContent'))
 
         article_list = set(re.findall(r"(?<=/wiki/)[\w()]+", body))
-        refs = [x for x in article_list if x in list1]
+        refs = [x for x in article_list if x in undefined_list]
 
-        for xx in list1:
-            print(xx)
-
-
-        for xx in refs:
-            print(xx)
+        new_files = attr_list[1]
+        stop = attr_list[2]
 
         for ref in refs:
-            files[ref] = {1: [ref]}
+            new_files[ref] = page
+            if ref == stop:
+                return
 
-    for i in files.keys():
-        print(f"{files[i]}-------{i}")
+    # Prepare new list of undefined members: new_list = undefined_list - refs
+    new_list = [element for element in undefined_list if element not in refs]
+    recursion_tree(refs, new_list, attr_list)
 
+def build_tree(start, end, path):
+    link_re = re.compile(r"(?<=/wiki/)[\w()]+")  # Искать ссылки можно как угодно, не обязательно через re
+    files = dict.fromkeys(os.listdir(path))  # Словарь вида {"filename1": None, "filename2": None, ...}
+    files_list = files.keys()
 
+    recursion_tree([start], files_list, [path, files, end])
 
-
-
+    # storage_path = os.path.join(path, start)
+    # # print(storage_path)
+    #
+    # with open(storage_path, "r", encoding='utf-8') as f:
+    #     html = f.read()
+    #
+    # soup = BeautifulSoup(html, "lxml")
+    # body = str(soup.find(id='bodyContent'))
+    #
+    # article_list = set(re.findall(r"(?<=/wiki/)[\w()]+", body))
+    # refs = [x for x in article_list if x in files_list]
+    # # files[start] = refs
+    # for ref in refs:
+    #     files[ref] = {0: [start]}
+    #     # print(f"{ref} --- {files[ref]}")
+    #
+    # # Create new list = files_list - refs
+    # list1 = [element for element in files_list if element not in refs]
+    #
+    # files_list = refs
+    #
+    # for file_1 in files_list:
+    #     storage_path = os.path.join(path, file_1)
+    #
+    #     with open(storage_path, "r", encoding='utf-8') as f:
+    #         html = f.read()
+    #
+    #     soup = BeautifulSoup(html, "lxml")
+    #     body = str(soup.find(id='bodyContent'))
+    #
+    #     article_list = set(re.findall(r"(?<=/wiki/)[\w()]+", body))
+    #     refs = [x for x in article_list if x in list1]
+    #
+    #     for xx in list1:
+    #         print(xx)
+    #
+    #     for xx in refs:
+    #         print(xx)
+    #
+    #     for ref in refs:
+    #         files[ref] = {1: [ref]}
+    #
+    # for i in files.keys():
+    #     print(f"{files[i]}-------{i}")
 
     # TODO Проставить всем ключам в files правильного родителя в значение, начиная от start
+    print(files['Brain'])
+    print(files['Artificial_intelligence'])
+    print(files['Python_(programming_language)'])
     return files
 
 
