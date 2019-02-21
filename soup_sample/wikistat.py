@@ -4,6 +4,19 @@ import re
 from bs4 import BeautifulSoup
 
 
+# Очистить список ссылок страницы
+def cleanup_list(raw_list, undefined_list):
+    clean_list = [wiki for wiki in raw_list if wiki in undefined_list]
+
+    return clean_list
+
+
+# Получить список неотмеченных файлов
+def get_undefined_list(dict_wiki_files):
+    undefined_list = [wiki for wiki in dict_wiki_files if dict_wiki_files[wiki] == None]
+    return undefined_list
+
+
 # pages_list: список страниц, из которых берем ссылки на другие страницы
 # undefined_list: список страниц, у которых нет ссылок
 # attr_list:
@@ -16,6 +29,9 @@ def recursion_tree(pages_list, undefined_list, attr_list):
         return
 
     path = attr_list[0]
+    dict_wiki_files = attr_list[1]
+    stop = attr_list[2]
+
     refs = list()
 
     for page in pages_list:
@@ -28,71 +44,27 @@ def recursion_tree(pages_list, undefined_list, attr_list):
         body = str(soup.find(id='bodyContent'))
 
         article_list = set(re.findall(r"(?<=/wiki/)[\w()]+", body))
-        refs = [x for x in article_list if x in undefined_list]
+        undefined_list = get_undefined_list(dict_wiki_files)
 
-        new_files = attr_list[1]
-        stop = attr_list[2]
+        refs = cleanup_list(article_list, undefined_list)
 
         for ref in refs:
-            new_files[ref] = page
+            dict_wiki_files[ref] = page
             if ref == stop:
                 return
 
-    # Prepare new list of undefined members: new_list = undefined_list - refs
-    new_list = [element for element in undefined_list if element not in refs]
-    recursion_tree(refs, new_list, attr_list)
+    undefined_list = get_undefined_list(dict_wiki_files)
+    recursion_tree(refs, undefined_list, attr_list)
+
 
 def build_tree(start, end, path):
     link_re = re.compile(r"(?<=/wiki/)[\w()]+")  # Искать ссылки можно как угодно, не обязательно через re
-    files = dict.fromkeys(os.listdir(path))  # Словарь вида {"filename1": None, "filename2": None, ...}
-    files_list = files.keys()
 
-    recursion_tree([start], files_list, [path, files, end])
+    wiki_files = os.listdir(path)
+    files = dict.fromkeys(wiki_files)  # Словарь вида {"filename1": None, "filename2": None, ...}
 
-    # storage_path = os.path.join(path, start)
-    # # print(storage_path)
-    #
-    # with open(storage_path, "r", encoding='utf-8') as f:
-    #     html = f.read()
-    #
-    # soup = BeautifulSoup(html, "lxml")
-    # body = str(soup.find(id='bodyContent'))
-    #
-    # article_list = set(re.findall(r"(?<=/wiki/)[\w()]+", body))
-    # refs = [x for x in article_list if x in files_list]
-    # # files[start] = refs
-    # for ref in refs:
-    #     files[ref] = {0: [start]}
-    #     # print(f"{ref} --- {files[ref]}")
-    #
-    # # Create new list = files_list - refs
-    # list1 = [element for element in files_list if element not in refs]
-    #
-    # files_list = refs
-    #
-    # for file_1 in files_list:
-    #     storage_path = os.path.join(path, file_1)
-    #
-    #     with open(storage_path, "r", encoding='utf-8') as f:
-    #         html = f.read()
-    #
-    #     soup = BeautifulSoup(html, "lxml")
-    #     body = str(soup.find(id='bodyContent'))
-    #
-    #     article_list = set(re.findall(r"(?<=/wiki/)[\w()]+", body))
-    #     refs = [x for x in article_list if x in list1]
-    #
-    #     for xx in list1:
-    #         print(xx)
-    #
-    #     for xx in refs:
-    #         print(xx)
-    #
-    #     for ref in refs:
-    #         files[ref] = {1: [ref]}
-    #
-    # for i in files.keys():
-    #     print(f"{files[i]}-------{i}")
+    # Первый вызов: стартовая страница, весь список страниц - undefined
+    recursion_tree([start], wiki_files, [path, files, end])
 
     # TODO Проставить всем ключам в files правильного родителя в значение, начиная от start
     print(files['Brain'])
