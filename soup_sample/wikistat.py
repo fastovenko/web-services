@@ -78,7 +78,6 @@ def build_bridge(start, end, path):
     while page != start:
         bridge.append(page)
         page = files[page]
-
     bridge.append(start)
 
     return bridge
@@ -98,16 +97,17 @@ def count_imgs(source):
 def count_headers(source):
     headers_list = source.find_all(name=re.compile('h[1-6]'))
     headers = 0
-    count = 0
 
     for header_current in headers_list:
-        if header_current.string != None:
-            if re.search('^[ETC]', header_current.string):
-                count += 1
-                print("ok")
-            headers += 1 if re.search('^[ETC]', header_current.string) else 0
-
+        tag_string = header_current.get_text()
+        headers += 1 if re.search('^[ETC]', tag_string) else 0
     return headers
+
+
+def count_linkslen(source):
+    linkslen = 0
+
+    return linkslen
 
 
 def parse(start, end, path):
@@ -123,10 +123,9 @@ def parse(start, end, path):
         body = soup.find(id="bodyContent")
         imgs = count_imgs(body)
         headers = count_headers(body)
+        linkslen = count_linkslen(body)
 
-        # imgs = 5  # Количество картинок (img) с шириной (width) не меньше 200
-        # headers = 10  # Количество заголовков, первая буква текста внутри которого: E, T или C
-        linkslen = 15  # Длина максимальной последовательности ссылок, между которыми нет других тегов
+        # linkslen = 15  # Длина максимальной последовательности ссылок, между которыми нет других тегов
         lists = 20  # Количество списков, не вложенных в другие списки
 
         out[file] = [imgs, headers, linkslen, lists]
