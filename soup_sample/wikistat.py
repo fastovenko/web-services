@@ -129,18 +129,20 @@ def count_linkslen(source):
 
 
 def count_lists(source):
-    lists = 0
+    list_num = 0
+    for list in source.find_all(['ol', 'ul']):
+        if not list.find_parent('li'):
+            list_num += 1
 
-    return lists
+    return list_num
 
 
 def parse(start, end, path):
-    # bridge = build_bridge(start, end, path)
-    bridge = ["Python_(programming_language)", "Artificial_intelligence", "Brain", "Stone_Age"]
+    # bridge = ["Python_(programming_language)", "Artificial_intelligence", "Brain", "Stone_Age"]
+    bridge = build_bridge(start, end, path)
 
     out = {}
     for file in bridge:
-        print(f"-----{file}---------")
         with open("{}{}".format(path, file)) as data:
             soup = BeautifulSoup(data, "lxml")
 
