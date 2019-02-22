@@ -105,9 +105,33 @@ def count_headers(source):
 
 
 def count_linkslen(source):
-    linkslen = 0
+    paragraphs = source.find_all('p')
+
+    aList = []
+    for paragraph in paragraphs:
+        links = paragraph.find_all('a')
+
+        counter = 1
+        for a in links:
+            if a.find_next_sibling() is not None:
+                nextTag = a.find_next_sibling().name
+                if nextTag == 'a':
+                    counter += 1
+                else:
+                    aList.append(counter)
+                    counter = 1
+            else:
+                aList.append(counter)
+
+    linkslen = max(aList)
 
     return linkslen
+
+
+def count_lists(source):
+    lists = 0
+
+    return lists
 
 
 def parse(start, end, path):
@@ -124,9 +148,7 @@ def parse(start, end, path):
         imgs = count_imgs(body)
         headers = count_headers(body)
         linkslen = count_linkslen(body)
-
-        # linkslen = 15  # Длина максимальной последовательности ссылок, между которыми нет других тегов
-        lists = 20  # Количество списков, не вложенных в другие списки
+        lists = count_lists(body)  # Количество списков, не вложенных в другие списки
 
         out[file] = [imgs, headers, linkslen, lists]
 
