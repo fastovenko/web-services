@@ -111,7 +111,8 @@ def count_headers(source):
 
 
 def parse(start, end, path):
-    bridge = build_bridge(start, end, path)
+    # bridge = build_bridge(start, end, path)
+    bridge = ["Python_(programming_language)", "Artificial_intelligence", "Brain", "Stone_Age"]
 
     out = {}
     for file in bridge:
@@ -122,7 +123,6 @@ def parse(start, end, path):
         body = soup.find(id="bodyContent")
         imgs = count_imgs(body)
         headers = count_headers(body)
-
 
         # imgs = 5  # Количество картинок (img) с шириной (width) не меньше 200
         # headers = 10  # Количество заголовков, первая буква текста внутри которого: E, T или C
