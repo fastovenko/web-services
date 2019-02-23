@@ -1,7 +1,24 @@
+import logging
 import os
 import re
 
 from bs4 import BeautifulSoup
+
+logging.basicConfig(
+    filename="test.log",
+    level=logging.DEBUG,
+    format="%(asctime)s:%(levelname)s:%(message)s"
+    )
+
+# logging.basicConfig(format = '[%(asctime)s] [LINE:%(lineno)d] %(levelname)-8s: %(message)s',
+#                     datefmt = '%Y-%m-%d %H:%M:%S',
+#                     filename = 'log/example.log',
+#                     encoding = 'utf8',
+#                     level = logging.DEBUG)
+
+# logging.basicConfig(filename="test.log", level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)  # on console
+logger1 = logging.getLogger("wikistat")
 
 
 # Очистить список ссылок страницы
@@ -143,6 +160,8 @@ def parse(start, end, path):
 
     out = {}
     for file in bridge:
+        logging.debug(f"Обрабатывается файл: --------------?{file}?--------------")
+        logger1.debug(f"Обрабатывается файл: ---------------{file}---------------")
         with open("{}{}".format(path, file)) as data:
             soup = BeautifulSoup(data, "lxml")
 
