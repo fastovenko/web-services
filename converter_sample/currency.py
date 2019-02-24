@@ -9,7 +9,7 @@ logging.basicConfig(
     level=logging.DEBUG)
 logger = logging.getLogger("currency")
 
-API_URL = 'http://www.cbr.ru/scripts/XML_daily.asp?date_req='
+API_URL = 'http://www.cbr.ru/scripts/XML_daily.asp?'
 PROXY_DICT = {
     "http": "http://195.208.172.70:8080",
     "https": "https://195.208.172.70:8080",
@@ -17,11 +17,16 @@ PROXY_DICT = {
 
 
 def convert(amount, cur_from, cur_to, date, requests):
+    params = {
+        'date_req': date
+    }
+
     logger.debug(f"Working {API_URL}...")
 
 
-    response = requests.get(API_URL + date, proxies=PROXY_DICT).content
+    response = requests.get(API_URL, params, proxies=PROXY_DICT).content
     soup = BeautifulSoup(response, "xml")
+
 
     logger.debug(soup.find('CharCode', text=cur_to).find_next_sibling('Value'))
 
