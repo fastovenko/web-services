@@ -16,6 +16,20 @@ PROXY_DICT = {
 }
 
 
+def get_currency_info(soup, currency):
+    value = str(1.0) if currency == 'RUR' else \
+        soup.find('CharCode', text=currency).find_next_sibling('Value').string
+    nominal = str(1.0) if currency == 'RUR' \
+        else soup.find('CharCode', text=currency).find_next_sibling('Nominal').string
+    avalue = Decimal(value.replace(',','.'))
+    anominal=nominal
+
+    logging.debug(avalue)
+    logging.debug(anominal)
+
+    return [avalue, anominal]
+
+
 def convert(amount, cur_from, cur_to, date, requests):
     params = {
         'date_req': date
@@ -23,17 +37,26 @@ def convert(amount, cur_from, cur_to, date, requests):
 
     logger.debug(f"Working {API_URL}...")
 
-
     response = requests.get(API_URL, params, proxies=PROXY_DICT).content
     soup = BeautifulSoup(response, "xml")
 
+    cur_from_list = get_currency_info(soup, cur_from)
+    cur_to_list = get_currency_info(soup, cur_to)
 
-    logger.debug(soup.find('CharCode', text=cur_to).find_next_sibling('Value'))
+    logger.debug(cur_to_list)
+
+    # k1 = cur_from_list[1] / cur_from_list[0]
+    # k2 = cur_to_list[1] / cur_from_list[0]
+    #
+    # resultt = k1 / k2 * Decimal(amount)
+    # res = resultt.quantize(Decimal("1.0000"))
+    #
+    # logger.debug(res)
 
     # ...
+    # print(number.quantize(Decimal("1.0000")))
     result = Decimal('3754.8057')
     return result  # не забыть про округление до 4х знаков после запятой
-
 
 # import requests
 # http_proxy = "http://195.208.172.70:8080"
