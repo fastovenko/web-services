@@ -1,4 +1,4 @@
-from soup_sample.wikistat_source import parse
+from soup_sample.wikistat import parse
 
 correct = {
     'Stone_Age': [13, 10, 12, 40],
