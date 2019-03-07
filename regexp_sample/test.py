@@ -1,7 +1,7 @@
 import re
 
 # https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
-from .regexp import calculate
+from soup_sample.regexp import calculate
 
 
 def findall(regexp):
