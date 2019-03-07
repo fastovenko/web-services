@@ -1,6 +1,5 @@
 from django.conf.urls import url
 
-# from coursera_assignment_tmp.routing.views import simple_route, slug_route, sum_route, sum_get_method, sum_post_method
 from routing.views import simple_route, slug_route, sum_route, sum_get_method, sum_post_method
 
 urlpatterns = [
